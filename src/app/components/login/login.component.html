@@ -1,3 +1,28 @@
 <div class="col-md-12" style="text-align: center;">
-    <button class="btn btn-primary">Click Me to Login</button>
+    <div *ngIf=!loggedIn>
+        <div>
+            <input [(ngModel)]="name" type="text" placeholder="Please enter your name">
+        </div>
+        <hr>
+        <div>
+            <button class="btn btn-primary"
+            (click)=login()>Click Me to Login</button>
+        </div>
+    </div>
+    <div *ngIf=loggedIn>
+        <div class="col-md-12">
+            <h2>{{name}}</h2>
+        </div>
+        <div class="col-md-3">
+            User List
+            <div *ngFor="let client of clientsToChat">
+                <div>
+                    {{client.name}}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            Chats
+        </div>
+    </div>
 </div>
