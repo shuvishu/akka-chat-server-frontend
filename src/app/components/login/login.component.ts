@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { LoginService } from 'src/app/services/login-service.service';
-import { LoginSuccess , Clients , User} from 'src/app/models/model';
+import { LoginSuccess , Clients , User, Chats, ChatMessage} from 'src/app/models/model';
 import { v4 as uuid } from 'uuid';
 import {getObservable, unsubscribeObservable} from '../../utils/observables';
 import { Subscription } from 'rxjs';
@@ -17,13 +17,17 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   destroyed: boolean = true;
 
-  clientsToChat: User[];
+  chats: Chats[];
 
   name: string;
+
+  currentChat: Chats;
 
   getClientsObservable: Subscription;
 
   heartBeatObservable: Subscription;
+
+  currentMessage: string;
 
   constructor(private service: LoginService) { }
   ngOnDestroy(): void {
@@ -32,7 +36,21 @@ export class LoginComponent implements OnInit, OnDestroy {
     unsubscribeObservable(this.heartBeatObservable);
   }
 
-  ngOnInit() {
+  ngOnInit() { }
+
+
+  sendMessage() {
+    const newMessage = new ChatMessage(this.currentMessage, true, new Date().getTime());
+    this.currentMessage = undefined;
+    this.currentChat.chat.push(newMessage);
+  }
+
+  openChat(client: Chats) {
+    console.log('Open chat called for ');
+    console.log(client);
+    this.currentChat = this.chats.filter(x => x.id.id === client.id.id)[0];
+    console.log(this.currentChat);
+
   }
 
   login() {
@@ -42,20 +60,37 @@ export class LoginComponent implements OnInit, OnDestroy {
 
       this.service.clients().subscribe((res: Clients) => {
         this.loggedIn = true;
-        this.clientsToChat = res.clients.filter(x => x.id !== this.id);
+        this.chats = res.clients.filter(x => x.id !== this.id).map((user: User) => new Chats(user));
         this.runClientsObservable();
         this.runHeartBeat();
       });
     }, error => {
-
+      if (error.status === 0) {
+        alert('Server is unavailable');
+      }
     });
   }
 
   runClientsObservable() {
     this.getClientsObservable = getObservable(5000, 10000, this.destroyed).subscribe(() => {
       this.service.clients().subscribe((res: Clients) => {
-        this.loggedIn = true;
-        this.clientsToChat = res.clients.filter(x => x.id !== this.id);
+        res.clients.forEach((newClient: User) => {
+          if (this.id !== newClient.id) {
+            if (this.chats.filter((u: Chats) => u.id.id === newClient.id).length === 0) {
+              this.chats.push(new Chats(newClient));
+            }
+          }
+        });
+        this.chats.filter(us => {
+          return res.clients.filter(x => x.id === us.id.id).length === 0;
+        }).map(v => v.id.id)
+        .forEach(id => {
+          this.chats.forEach(u => {
+            if (u.id.id === id) {
+              u.isOnline = false;
+            }
+          });
+        });
       });
     });
   }
@@ -65,7 +100,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.service.poll(this.id).subscribe((res: any) => {
         console.log('Poll success full');
       }, error => {
-        console.log('---------------------- Error Occured');
         console.log(error);
       });
     });

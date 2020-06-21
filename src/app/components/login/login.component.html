@@ -15,14 +15,25 @@
         </div>
         <div class="col-md-3">
             User List
-            <div *ngFor="let client of clientsToChat">
+            <div *ngFor="let client of chats" (click) ="openChat(client)">
                 <div>
-                    {{client.name}}
+                    {{client.id.name}}
+                    {{client.getStatus()}}
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
-            Chats
+        <div class="col-md-8" *ngIf="currentChat" style="border: 1px solid black; padding: 2vw;">
+            <div *ngFor="let chatMessage of currentChat.chat" style="border: 1px solid black;">
+                <div>
+                    {{chatMessage.message}} <br>
+                    {{chatMessage.time}} <br>
+                </div>
+            </div>
+            <hr>
+            <div>
+                <input type="text" [disabled]="!currentChat.isOnline" placeholder="Please enter your message" [(ngModel)]="currentMessage">
+                <button class="ctn" [disabled]="!currentChat.isOnline" (click)=sendMessage()>Send !</button>
+            </div>
         </div>
     </div>
 </div>
