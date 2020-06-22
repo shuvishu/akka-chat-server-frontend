@@ -15,24 +15,30 @@
         </div>
         <div class="col-md-3">
             User List
-            <div *ngFor="let client of chats" (click) ="openChat(client)">
-                <div>
+            <div *ngFor="let client of chats" (click)="openChat(client)" style="padding: 3px;">
+                <mat-card style="cursor:pointer; background-color: beige;">
                     {{client.id.name}}
-                    {{client.getStatus()}}
-                </div>
+                    <span class="fas fa-circle"
+                                [ngStyle]="client.getColor()"
+                                [textContent]="client.getStatus()">
+                    </span>
+                </mat-card>
             </div>
         </div>
         <div class="col-md-8" *ngIf="currentChat" style="border: 1px solid black; padding: 2vw;">
+            <h3>
+               Messageing {{currentChat.id.name}}
+            </h3>
             <div *ngFor="let chatMessage of currentChat.chat" style="border: 1px solid black;">
                 <div>
                     {{chatMessage.message}} <br>
-                    {{chatMessage.time}} <br>
+                    {{getTime(chatMessage.time)}} <br>
                 </div>
             </div>
             <hr>
             <div>
                 <input type="text" [disabled]="!currentChat.isOnline" placeholder="Please enter your message" [(ngModel)]="currentMessage">
-                <button class="ctn" [disabled]="!currentChat.isOnline" (click)=sendMessage()>Send !</button>
+                 | <button class="btn" [disabled]="!currentChat.isOnline" (click)=sendMessage()>Send !</button>
             </div>
         </div>
     </div>

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { LoginService } from 'src/app/services/login-service.service';
-import { LoginSuccess , Clients , User, Chats, ChatMessage} from 'src/app/models/model';
+import { LoginSuccess , Clients , User, Chats, ChatMessage, PollSuccess, UnreadMessage} from 'src/app/models/model';
 import { v4 as uuid } from 'uuid';
 import {getObservable, unsubscribeObservable} from '../../utils/observables';
 import { Subscription } from 'rxjs';
@@ -40,9 +40,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
 
   sendMessage() {
-    const newMessage = new ChatMessage(this.currentMessage, true, new Date().getTime());
+    const newMessage = new ChatMessage(this.currentMessage, new Date().getTime(), this.id, this.currentChat.id.id);
     this.currentMessage = undefined;
     this.currentChat.chat.push(newMessage);
+    this.service.sendMessage(newMessage).subscribe(res => {
+      console.log('Posted Message');
+    });
   }
 
   openChat(client: Chats) {
@@ -97,12 +100,31 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   runHeartBeat() {
     this.heartBeatObservable = getObservable(0, 5000, this.destroyed).subscribe(() => {
-      this.service.poll(this.id).subscribe((res: any) => {
-        console.log('Poll success full');
+      this.service.poll(this.id).subscribe((res: PollSuccess) => {
+
+        console.log(`Got Response`);
+        console.log(res);
+        this.fillChatResponses(res);
       }, error => {
         console.log(error);
       });
     });
+  }
+
+  fillChatResponses(pollRes: PollSuccess) {
+    pollRes.unread.forEach((v: UnreadMessage) => {
+      this.chats.forEach((x: Chats) => {
+        if (x.id.id === v.from) {
+          v.messages.forEach(a => x.chat.push(a));
+        }
+      });
+    });
+  }
+
+
+
+  getTime(timestamp: number): Date {
+    return new Date(timestamp);
   }
 
 }

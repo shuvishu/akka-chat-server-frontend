@@ -7,13 +7,15 @@ export interface Clients {
 }
 
 export class ChatMessage {
-    byMe: boolean;
+    from: string;
+    to: string;
     message: string;
-    time: Date;
-    constructor(m: string, bm: boolean, time: number) {
+    time: number;
+    constructor(m: string, time: number, frm: string, t: string) {
         this.message = m;
-        this.byMe = bm;
-        this.time = new Date(time);
+        this.time = time;
+        this.from = frm;
+        this.to = t;
     }
 
 }
@@ -32,6 +34,10 @@ export class Chats {
     getStatus(): string {
         return this.isOnline ? 'Online' : 'Offline';
     }
+
+    getColor() {
+        return this.isOnline ? {color: 'green'} : {color: '#ff0101'};
+    }
 }
 
 export class User {
@@ -42,4 +48,13 @@ export class User {
         this.id = i;
         this.name = n;
     }
+}
+
+export interface UnreadMessage {
+    from: string;
+    messages: ChatMessage[];
+}
+
+export interface PollSuccess {
+    unread: UnreadMessage[];
 }
