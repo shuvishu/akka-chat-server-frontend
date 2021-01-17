@@ -25,9 +25,9 @@
                 </mat-card>
             </div>
         </div>
-        <div class="col-md-8" *ngIf="currentChat" style="border: 1px solid black; padding: 2vw;">
+        <div class="col-md-8" *ngIf="currentChat" style="background-image: url('images/chat_background.png'); border: 1px solid black; padding: 2vw;">
             <h3>
-               Messageing {{currentChat.id.name}}
+               Messaging {{currentChat.id.name}}
             </h3>
             <div *ngFor="let chatMessage of currentChat.chat" style="border: 1px solid black;">
                 <div>

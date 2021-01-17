@@ -124,5 +124,8 @@
       }
     }
   },
-  "defaultProject": "simple-chat-server-frontend"
+  "defaultProject": "simple-chat-server-frontend",
+  "cli": {
+    "analytics": "e0627590-462c-4256-8b32-9b147f669877"
+  }
 }
